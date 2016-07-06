@@ -1,0 +1,23 @@
+<?php
+
+function civicrm_views_smartgroup_install() {
+  db_query("CREATE OR REPLACE VIEW {civicrm_group_contact_union}
+            AS SELECT group_id, contact_id, status FROM {civicrm_group_contact}
+            UNION SELECT group_id, contact_id, 'SmartGroup' AS status FROM {civicrm_group_contact_cache}");
+
+  // CiviCRM uses hook_views_alter() for some reason (!). And also sets its weight to 100.
+  // So to be able to manipulate this data, we need to set our weight even higher.
+  $weight = db_select('system', 's')
+    ->fields(s, array('weight'))
+    ->condition('name', 'civicrm')
+    ->execute()
+    ->fetchField();
+  db_update('system')
+    ->fields(array('weight' => $weight + 1))
+    ->condition('name', 'civicrm_views_smartgroup')
+    ->execute();
+}
+
+function civicrm_views_smartgroup_uninstall() {
+  db_query("DROP VIEW IF EXISTS {civicrm_group_contact_union}");
+}

@@ -1,0 +1,10 @@
+name = CiviCRM Views Smartgroup
+description = Provides smartgroup integration for views, allowing you to seamlessly create views for regular and smart groups.
+package = civicrm
+core = 7.x
+
+dependencies[] = civicrm
+dependencies[] = views
+
+files[] = handlers/civicrm_views_smartgroup_filter_numeric.inc
+files[] = handlers/civicrm_views_smartgroup_argument_numeric.inc

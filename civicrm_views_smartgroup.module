@@ -1,0 +1,29 @@
+<?php
+
+function civicrm_views_smartgroup_views_data_alter(&$data) {
+  // Use civicrm_group_contact_union table instead as intermediate join table.
+  // This table is actually a (mysql) view that merges the group contacts and smartgroup cache tables.
+  $data['civicrm_group_contact_union'] = $data['civicrm_group_contact'];
+  $data['civicrm_group']['table']['join']['civicrm_contact']['left_table'] = 'civicrm_group_contact_union';
+  unset($data['civicrm_group_contact']);
+
+  // Trigger a smartgroup cache rebuild if we detect the view is being filtered by group_id.
+  $data['civicrm_group']['id']['filter']['handler'] = 'civicrm_views_smartgroup_filter_numeric';
+  $data['civicrm_group']['id']['argument']['handler'] = 'civicrm_views_smartgroup_argument_numeric';
+}
+
+function civicrm_views_smartgroup_views_query_alter(&$view, &$query) {
+  // Worst case: the group_contact_cache table is empty in a query that is potentially making use
+  // of it. We rebuild the entire table which can be very slow.
+  // This runs *after* the handlers, so this should only be triggered on views
+  // with empty group ID filters or handlers.
+  if (array_key_exists('civicrm_group_contact_union', $query->table_queue)) {
+    civicrm_initialize();
+    CRM_Contact_BAO_GroupContactCache::fillIfEmpty();
+  }
+}
+
+function civicrm_views_smartgroup_cron() {
+  civicrm_initialize();
+  CRM_Contact_BAO_GroupContactCache::loadAll();
+}
