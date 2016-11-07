@@ -8,3 +8,5 @@ dependencies[] = views
 
 files[] = handlers/civicrm_views_smartgroup_filter_numeric.inc
 files[] = handlers/civicrm_views_smartgroup_argument_numeric.inc
+files[] = handlers/civicrm_views_smartgroup_filter_status.inc
+files[] = handlers/civicrm_views_smartgroup_filter_pseudo_constant.inc
