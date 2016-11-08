@@ -30,6 +30,12 @@ function civicrm_views_smartgroup_install() {
 
 function civicrm_views_smartgroup_uninstall() {
   civicrm_initialize();
+  CRM_Core_DAO::executeQuery("DROP TRIGGER IF EXISTS civicrm_group_contact_after_insert");
+  CRM_Core_DAO::executeQuery("DROP TRIGGER IF EXISTS civicrm_group_contact_after_update");
+  CRM_Core_DAO::executeQuery("DROP TRIGGER IF EXISTS civicrm_group_contact_after_delete");
+  CRM_Core_DAO::executeQuery("DROP TRIGGER IF EXISTS civicrm_group_contact_cache_after_insert");
+  CRM_Core_DAO::executeQuery("DROP TRIGGER IF EXISTS civicrm_group_contact_cache_after_update");
+  CRM_Core_DAO::executeQuery("DROP TRIGGER IF EXISTS civicrm_group_contact_cache_after_delete");
   CRM_Core_DAO::executeQuery("DROP TABLE IF EXISTS _civicrm_group_contact_union");
 }
 
