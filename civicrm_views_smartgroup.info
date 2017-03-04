@@ -1,4 +1,4 @@
-name = CiviCRM Views Smartgroup
+name = CiviCRM Views Smartgroup - Complex
 description = Provides smartgroup integration for views, allowing you to seamlessly create views for regular and smart groups.
 package = civicrm
 core = 7.x
