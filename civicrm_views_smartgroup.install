@@ -1,5 +1,25 @@
 <?php
 
+function civicrm_views_smartgroup_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  try {
+    if (!civicrm_initialize()) {
+      throw new Exception("CiviCRM could not be initialized.");
+    }
+  }
+  catch (Exception $e) {
+    $requirements['civicrm_views_smartgroup'] = array(
+      'title' => $t('CiviCRM Views Smartgroup error'),
+      'description' => $e->getMessage(),
+      'severity' => REQUIREMENT_ERRROR,
+    );
+  }
+
+  return $requirements;
+}
+
 function civicrm_views_smartgroup_install() {
   // CiviCRM uses hook_views_alter() for some reason (!). And also sets its weight to 100.
   // So to be able to manipulate this data, we need to set our weight even higher.
