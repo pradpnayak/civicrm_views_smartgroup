@@ -24,7 +24,7 @@ function civicrm_views_smartgroup_install() {
   // CiviCRM uses hook_views_alter() for some reason (!). And also sets its weight to 100.
   // So to be able to manipulate this data, we need to set our weight even higher.
   $weight = db_select('system', 's')
-    ->fields(s, array('weight'))
+    ->fields('s', array('weight'))
     ->condition('name', 'civicrm')
     ->execute()
     ->fetchField();
