@@ -20,7 +20,7 @@ function civicrm_views_smartgroup_views_query_alter(&$view, &$query) {
   // of it. We rebuild the entire table which can be very slow.
   // This runs *after* the handlers, so this should only be triggered on views
   // with empty group ID filters or handlers.
-  if (array_key_exists('civicrm_group_contact_union', $query->table_queue)) {
+  if (array_key_exists('_civicrm_group_contact_union', $query->table_queue)) {
     civicrm_initialize();
     CRM_Contact_BAO_GroupContactCache::fillIfEmpty();
   }
