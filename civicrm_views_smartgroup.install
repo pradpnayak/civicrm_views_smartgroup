@@ -41,5 +41,7 @@ function civicrm_views_smartgroup_install() {
 }
 
 function civicrm_views_smartgroup_uninstall() {
-  CRM_Core_DAO::executeQuery("DROP VIEW IF EXISTS _civicrm_group_contact_union");
+  if (civicrm_initialize()) {
+    CRM_Core_DAO::executeQuery("DROP VIEW IF EXISTS _civicrm_group_contact_union");
+  }
 }
