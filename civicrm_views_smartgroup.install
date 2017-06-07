@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Implement hook_requirements().
+ */
 function civicrm_views_smartgroup_requirements($phase) {
   $requirements = array();
   $t = get_t();
@@ -20,6 +23,9 @@ function civicrm_views_smartgroup_requirements($phase) {
   return $requirements;
 }
 
+/**
+ * Implement hook_install().
+ */
 function civicrm_views_smartgroup_install() {
   // CiviCRM uses hook_views_alter() for some reason (!). And also sets its weight to 100.
   // So to be able to manipulate this data, we need to set our weight even higher.
@@ -48,6 +54,9 @@ function civicrm_views_smartgroup_install() {
   _civicrm_views_smartgroup_ensure_table();
 }
 
+/**
+ * Implement hook_uninstall().
+ */
 function civicrm_views_smartgroup_uninstall() {
   civicrm_initialize();
   CRM_Core_DAO::executeQuery("DROP TRIGGER IF EXISTS civicrm_group_contact_after_insert");
