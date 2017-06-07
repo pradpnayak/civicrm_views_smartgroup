@@ -2,7 +2,7 @@
 
 function civicrm_views_smartgroup_views_data_alter(&$data) {
   // Use civicrm_group_contact_union table instead as intermediate join table.
-  // This table is a poor man's materialized view (using triggers) that merges the
+  // This table is an inferior materialized view (using triggers) that merges the
   // group contacts and smartgroup cache tables.
   $data['_civicrm_group_contact_union'] = $data['civicrm_group_contact'];
   $data['civicrm_group']['table']['join']['civicrm_contact']['left_table'] = '_civicrm_group_contact_union';
@@ -34,7 +34,7 @@ function civicrm_views_smartgroup_cron() {
 }
 
 /**
- * Ensure our poor man's meterialized view is setup correctly.
+ * Ensure our inferior materialized view is set up correctly.
  * Resync table data and reapply all triggers.
  */
 function _civicrm_views_smartgroup_ensure_table() {
