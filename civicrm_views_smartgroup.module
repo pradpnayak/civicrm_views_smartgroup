@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Implement hook_views_data_alter().
+ */
 function civicrm_views_smartgroup_views_data_alter(&$data) {
   // Use civicrm_group_contact_union table instead as intermediate join table.
   // This table is actually a (mysql) view that merges the group contacts and smartgroup cache tables.
@@ -15,6 +18,9 @@ function civicrm_views_smartgroup_views_data_alter(&$data) {
   $data['civicrm_group']['title']['filter']['handler'] = 'civicrm_views_smartgroup_filter_pseudo_constant';
 }
 
+/**
+ * Implements hook_views_query_alter().
+ */
 function civicrm_views_smartgroup_views_query_alter(&$view, &$query) {
   // Worst case: the group_contact_cache table is empty in a query that is potentially making use
   // of it. We rebuild the entire table which can be very slow.
@@ -26,6 +32,9 @@ function civicrm_views_smartgroup_views_query_alter(&$view, &$query) {
   }
 }
 
+/**
+ * Implements hook_cron().
+ */
 function civicrm_views_smartgroup_cron() {
   civicrm_initialize();
   CRM_Contact_BAO_GroupContactCache::loadAll();
