@@ -39,9 +39,21 @@ function civicrm_views_smartgroup_views_query_alter(&$view, &$query) {
  * Implements hook_cron().
  */
 function civicrm_views_smartgroup_cron() {
+  // CiviCRM may apply permissions checks, we need to run this as uid=1.
+  // See https://github.com/fuzionnz/civicrm_views_smartgroup/issues/7
+  global $user;
+  $original_user = $user;
+  $old_state = drupal_save_session();
+  drupal_save_session(FALSE);
+  $user = user_load(1);
+
   civicrm_initialize();
   CRM_Contact_BAO_GroupContactCache::loadAll();
   _civicrm_views_smartgroup_ensure_table();
+
+  // Restore previous user.
+  $user = $original_user;
+  drupal_save_session($old_state);
 }
 
 /**
