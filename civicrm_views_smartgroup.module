@@ -29,7 +29,9 @@ function civicrm_views_smartgroup_views_query_alter(&$view, &$query) {
   // with empty group ID filters or handlers.
   if (array_key_exists('_civicrm_group_contact_union', $query->table_queue)) {
     civicrm_initialize();
-    CRM_Contact_BAO_GroupContactCache::fillIfEmpty();
+    if (!CRM_Core_DAO::singleValueQuery("SELECT COUNT(id) FROM civicrm_group_contact_cache")) {
+      civicrm_api3('Job', 'group_rebuild', array());
+    }
   }
 }
 
