@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Implement hook_requirements().
+ */
+function civicrm_views_smartgroup_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  try {
+    if (!civicrm_initialize()) {
+      throw new Exception("CiviCRM could not be initialized.");
+    }
+  }
+  catch (Exception $e) {
+    $requirements['civicrm_views_smartgroup'] = array(
+      'title' => $t('CiviCRM Views Smartgroup error'),
+      'description' => $e->getMessage(),
+      'severity' => REQUIREMENT_ERRROR,
+    );
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implement hook_install().
+ */
+function civicrm_views_smartgroup_install() {
+  // CiviCRM uses hook_views_alter() for some reason (!). And also sets its weight to 100.
+  // So to be able to manipulate this data, we need to set our weight even higher.
+  $weight = db_select('system', 's')
+    ->fields('s', array('weight'))
+    ->condition('name', 'civicrm')
+    ->execute()
+    ->fetchField();
+  db_update('system')
+    ->fields(array('weight' => $weight + 1))
+    ->condition('name', 'civicrm_views_smartgroup')
+    ->execute();
+
+  CRM_Core_DAO::executeQuery("
+    CREATE OR REPLACE VIEW _civicrm_group_contact_union
+    AS SELECT group_id, contact_id, status FROM civicrm_group_contact
+    UNION SELECT group_id, contact_id, 'SmartGroup' AS status FROM civicrm_group_contact_cache
+  ");
+}
+
+/**
+ * Implement hook_uninstall().
+ */
+function civicrm_views_smartgroup_uninstall() {
+  if (civicrm_initialize()) {
+    CRM_Core_DAO::executeQuery("DROP VIEW IF EXISTS _civicrm_group_contact_union");
+  }
+}

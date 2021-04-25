@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * Implement hook_views_data_alter().
+ */
+function civicrm_views_smartgroup_views_data_alter(&$data) {
+  $data['civicrm_group']['name']['filter'] = [
+    'handler' => 'civicrm_views_smartgroup_handler_filter_group_name',
+  ];
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function civicrm_views_smartgroup_views_query_alter(&$view, &$query) {
+  $leftTables = [];
+  foreach ($query->table_queue as $tableName => $tableDef) {
+    if ($tableDef['join']->table == 'civicrm_group_contact') {
+      $tableDef['join']->table = '_civicrm_group_contact_union';
+      if (in_array($tableDef['join']->left_table, $leftTables)) {
+        unset($query->table_queue[$tableName]);
+      }
+      else {
+        $leftTables[] = $tableDef['join']->left_table;
+      }
+    }
+  }
+}
