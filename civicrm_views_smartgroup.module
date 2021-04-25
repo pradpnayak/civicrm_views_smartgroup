@@ -7,6 +7,10 @@ function civicrm_views_smartgroup_views_data_alter(&$data) {
   $data['civicrm_group']['name']['filter'] = [
     'handler' => 'civicrm_views_smartgroup_handler_filter_group_name',
   ];
+  $data['civicrm_group_contact']['status']['filter'] = [
+    'handler' => 'civicrm_views_smartgroup_filter_status',
+  ];
+  $data['civicrm_group_contact']['status']['field']['handler'] = 'views_handler_field';
 }
 
 /**
@@ -23,6 +27,35 @@ function civicrm_views_smartgroup_views_query_alter(&$view, &$query) {
       else {
         $leftTables[] = $tableDef['join']->left_table;
       }
+    }
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function civicrm_views_smartgroup_civicrm_triggerInfo(&$info, $tableName) {
+  if (empty($tableName)) {
+    foreach (['civicrm_group_contact', 'civicrm_group_contact_cache'] as $tabName) {
+      $info[] = [
+        'table' => $tabName,
+        'when' => 'AFTER',
+        'event' => ['INSERT', 'UPDATE'],
+        'sql' => '
+          INSERT INTO _civicrm_group_contact_union (group_id, contact_id, status)
+          VALUES (NEW.group_id, NEW.contact_id, ' . (($tabName == 'civicrm_group_contact') ? "NEW.status" : "'Smartgroup'") . ')
+          ON DUPLICATE KEY UPDATE status = VALUES(status);
+        ',
+      ];
+      $info[] = [
+        'table' => $tabName,
+        'when' => 'AFTER',
+        'event' => 'DELETE',
+        'sql' => '
+          DELETE FROM _civicrm_group_contact_union
+          WHERE group_id = OLD.group_id AND contact_id = OLD.contact_id;
+        ',
+      ];
     }
   }
 }

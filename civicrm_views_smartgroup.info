@@ -7,3 +7,4 @@ dependencies[] = civicrm
 dependencies[] = views
 
 files[] = handlers/civicrm_views_smartgroup_handler_filter_group_name.inc
+files[] = handlers/civicrm_views_smartgroup_filter_status.inc

@@ -9,7 +9,7 @@ function civicrm_views_smartgroup_requirements($phase) {
 
   try {
     if (!civicrm_initialize()) {
-      throw new Exception("CiviCRM could not be initialized.");
+      throw new Exception('CiviCRM could not be initialized.');
     }
   }
   catch (Exception $e) {
@@ -39,11 +39,31 @@ function civicrm_views_smartgroup_install() {
     ->condition('name', 'civicrm_views_smartgroup')
     ->execute();
 
-  CRM_Core_DAO::executeQuery("
-    CREATE OR REPLACE VIEW _civicrm_group_contact_union
-    AS SELECT group_id, contact_id, status FROM civicrm_group_contact
-    UNION SELECT group_id, contact_id, 'SmartGroup' AS status FROM civicrm_group_contact_cache
-  ");
+  CRM_Core_DAO::executeQuery('
+    CREATE TABLE `_civicrm_group_contact_union` (
+      `group_id` int(10) unsigned NOT NULL,
+      `contact_id` int(10) unsigned NOT NULL,
+      `status` varchar(32) DEFAULT NULL,
+      UNIQUE KEY `group_contact` (`group_id`,`contact_id`),
+      KEY `group_id` (`group_id`),
+      KEY `contact_id` (`contact_id`)
+    ) ENGINE=InnoDB
+  ');
+
+  CRM_Core_DAO::executeQuery('
+    INSERT INTO _civicrm_group_contact_union
+    SELECT
+      `civicrm_group_contact`.`group_id` AS `group_id`,
+      `civicrm_group_contact`.`contact_id` AS `contact_id`,
+      `civicrm_group_contact`.`status` AS `status`
+    FROM civicrm_group_contact
+    UNION
+    SELECT `civicrm_group_contact_cache`.`group_id` AS `group_id`,
+      `civicrm_group_contact_cache`.`contact_id` AS `contact_id`,
+      "Smartgroup" AS `status`
+    FROM civicrm_group_contact_cache
+    ON DUPLICATE KEY UPDATE `status` = VALUES(status)
+  ');
 }
 
 /**
@@ -51,6 +71,12 @@ function civicrm_views_smartgroup_install() {
  */
 function civicrm_views_smartgroup_uninstall() {
   if (civicrm_initialize()) {
-    CRM_Core_DAO::executeQuery("DROP VIEW IF EXISTS _civicrm_group_contact_union");
+    CRM_Core_DAO::executeQuery('DROP TRIGGER IF EXISTS civicrm_group_contact_after_insert');
+    CRM_Core_DAO::executeQuery('DROP TRIGGER IF EXISTS civicrm_group_contact_after_update');
+    CRM_Core_DAO::executeQuery('DROP TRIGGER IF EXISTS civicrm_group_contact_after_delete');
+    CRM_Core_DAO::executeQuery('DROP TRIGGER IF EXISTS civicrm_group_contact_cache_after_insert');
+    CRM_Core_DAO::executeQuery('DROP TRIGGER IF EXISTS civicrm_group_contact_cache_after_update');
+    CRM_Core_DAO::executeQuery('DROP TRIGGER IF EXISTS civicrm_group_contact_cache_after_delete');
+    CRM_Core_DAO::executeQuery('DROP TABLE IF EXISTS _civicrm_group_contact_union');
   }
 }
